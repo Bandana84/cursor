@@ -1,0 +1,146 @@
+/* MainBanner.css */
+
+/* Keyframe animations */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.animate-fadeInUp {
+    animation: fadeInUp 0.8s ease-out forwards;
+}
+
+.delay-100 {
+    animation-delay: 0.1s;
+}
+
+.delay-200 {
+    animation-delay: 0.2s;
+}
+
+.delay-300 {
+    animation-delay: 0.3s;
+}
+
+/* Swiper custom styles */
+.swiper-overlay::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60%;
+    background: linear-gradient(to top, rgba(0,0,0,0.7) 0%, transparent 100%);
+    z-index: 1;
+}
+
+.custom-bullet {
+    width: 10px;
+    height: 10px;
+    background: rgba(255,255,255,0.5);
+    opacity: 1;
+    margin: 0 6px !important;
+    transition: all 0.3s ease;
+}
+
+.custom-bullet-active {
+    background: #fff;
+    width: 30px;
+    border-radius: 5px;
+}
+
+.swiper-button-next-custom,
+.swiper-button-prev-custom {
+    position: absolute;
+    top: 50%;
+    width: 50px;
+    height: 50px;
+    margin-top: -25px;
+    z-index: 10;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.3);
+    border-radius: 50%;
+    backdrop-filter: blur(2px);
+    transition: all 0.3s ease;
+    opacity: 0.7;
+}
+
+.swiper-button-next-custom:hover,
+.swiper-button-prev-custom:hover {
+    opacity: 1;
+    background: rgba(0,0,0,0.5);
+    transform: scale(1.1);
+}
+
+.swiper-button-next-custom {
+    right: 20px;
+}
+
+.swiper-button-prev-custom {
+    left: 20px;
+}
+
+/* Button hover effects */
+.button-hover-effect {
+    position: relative;
+    overflow: hidden;
+    transition: all 0.3s ease;
+    transform: translateY(0);
+}
+
+.button-hover-effect:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+}
+
+.button-hover-effect::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: 0.5s;
+}
+
+.button-hover-effect:hover::before {
+    left: 100%;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .banner-content {
+        justify-content: flex-end;
+        padding-bottom: 2rem;
+        text-align: center;
+        align-items: center;
+    }
+    
+    .swiper-overlay::after {
+        height: 70%;
+    }
+}
+
+/* Banner container with subtle pulse animation */
+.banner-container {
+    animation: subtlePulse 15s infinite alternate;
+}
+
+@keyframes subtlePulse {
+    0% {
+        transform: scale(1);
+    }
+    100% {
+        transform: scale(1.005);
+    }
+}
