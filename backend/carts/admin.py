@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Cart, CartItem
+from .models import Cart, CartItem, Address, Order
 
 class CartItemInline(admin.TabularInline):  # or admin.StackedInline
     model = CartItem
@@ -45,3 +45,14 @@ class CartItemAdmin(admin.ModelAdmin):
     def get_subtotal(self, obj):
         return obj.get_subtotal()
     get_subtotal.short_description = 'Subtotal'
+    
+    
+@admin.register(Address)
+class AddressAdmin(admin.ModelAdmin):
+    list_display = ('user', 'street', 'city', 'state', 'country')
+    list_filter = ('city', 'state', 'country')
+
+@admin.register(Order)
+class OrderAdmin(admin.ModelAdmin):
+    list_display = ('id', 'user', 'address', 'payment_method', 'total_amount', 'status', 'created_at')
+    readonly_fields = ('created_at',)

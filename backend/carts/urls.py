@@ -5,7 +5,8 @@ from .views import (
     UpdateCartItemByProductView,
     RemoveFromCartByProductView,
     AddressView,
-    OrderView
+    OrderView,
+    MyOrdersView
 )
 
 urlpatterns = [
@@ -15,4 +16,5 @@ urlpatterns = [
     path('remove-by-product/<int:product_id>/', RemoveFromCartByProductView.as_view(), name='remove-from-cart-by-product'),
     path('addresses/', AddressView.as_view(), name='addresses'),
     path('order/', OrderView.as_view(), name='order'),
+    path('my-orders/', MyOrdersView.as_view(), name='my-orders'),
 ]

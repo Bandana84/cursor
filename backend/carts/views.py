@@ -5,6 +5,7 @@ from django.shortcuts import get_object_or_404
 from .models import Cart, CartItem, Address, Order
 from products.models import Product
 from .serializers import CartSerializer, AddressSerializer, OrderSerializer
+from rest_framework.permissions import IsAuthenticated
 
 
 class CartView(APIView):
@@ -134,3 +135,12 @@ class RemoveFromCartByProductView(APIView):
         cart_item = get_object_or_404(CartItem, cart=cart, product__id=product_id)
         cart_item.delete()
         return Response({'message': 'Item removed from cart'}, status=status.HTTP_204_NO_CONTENT)
+
+
+class MyOrdersView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        orders = Order.objects.filter(user=request.user).order_by('-created_at')
+        serializer = OrderSerializer(orders, many=True)
+        return Response(serializer.data)

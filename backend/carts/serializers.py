@@ -1,6 +1,9 @@
 from rest_framework import serializers
 from .models import Cart, CartItem, Address, Order
 from products.serializers import ProductSerializer
+from rest_framework.views import APIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
 
 class CartItemSerializer(serializers.ModelSerializer):
     product = ProductSerializer(read_only=True)
@@ -41,7 +44,22 @@ class AddressSerializer(serializers.ModelSerializer):
         model = Address
         fields = ['id', 'street', 'city', 'state', 'country']
 
+class CreateOrderSerializer(serializers.Serializer):
+    street = serializers.CharField()
+    city = serializers.CharField()
+    state = serializers.CharField()
+    country = serializers.CharField()
+    payment_method = serializers.ChoiceField(choices=[('COD', 'Cash on Delivery'), ('Online', 'Online Payment')])
+
 class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = ['id', 'user', 'address', 'payment_method', 'total_amount', 'status', 'created_at']
+
+class MyOrdersView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        orders = Order.objects.filter(user=request.user).order_by('-created_at')
+        serializer = OrderSerializer(orders, many=True)
+        return Response(serializer.data)
