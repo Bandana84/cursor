@@ -76,9 +76,13 @@ export const AppContextProvider = ({ children }) => {
 
             const data = await response.json();
             if (data && data.items) {
+                // Map: productId -> { quantity, cart_item_id }
                 const items = {};
                 data.items.forEach(item => {
-                    items[item.product.id] = item.quantity;
+                    items[item.product.id] = {
+                        quantity: item.quantity,
+                        cart_item_id: item.id // backend's cart item id
+                    };
                 });
                 setCartItems(items);
             }
@@ -147,12 +151,12 @@ export const AppContextProvider = ({ children }) => {
         }
     };
 
-    const updateCartItem = async (itemId, quantity) => {
+    const updateCartItem = async (productId, quantity) => {
         const accessToken = user?.tokens?.access;
         if (!accessToken) return false;
 
         try {
-            const response = await fetch(`http://localhost:8000/api/carts/update/${itemId}/`, {
+            const response = await fetch(`http://localhost:8000/api/carts/update-by-product/${productId}/`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json',
@@ -175,12 +179,12 @@ export const AppContextProvider = ({ children }) => {
         }
     };
 
-    const removeFromCart = async (itemId) => {
+    const removeFromCart = async (productId) => {
         const accessToken = user?.tokens?.access;
         if (!accessToken) return false;
 
         try {
-            const response = await fetch(`http://localhost:8000/api/carts/remove/${itemId}/`, {
+            const response = await fetch(`http://localhost:8000/api/carts/remove-by-product/${productId}/`, {
                 method: 'DELETE',
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
@@ -202,7 +206,7 @@ export const AppContextProvider = ({ children }) => {
     };
 
     const getCartCount = () => {
-        return Object.values(cartItems).reduce((sum, qty) => sum + qty, 0);
+        return Object.values(cartItems).reduce((sum, item) => sum + (item.quantity || 0), 0);
     };
 
     const getCartAmount = () => {
@@ -210,10 +214,36 @@ export const AppContextProvider = ({ children }) => {
         for (const id in cartItems) {
             const product = products.find(p => String(p.id) === String(id));
             if (product) {
-                total += product.offer_price * cartItems[id];
+                total += product.offer_price * cartItems[id].quantity;
             }
         }
         return Math.round(total * 100) / 100;
+    };
+
+    // Update getCart to ensure each item has a top-level id (product id)
+    const getCart = () => {
+        const cartArray = [];
+        for (const key in cartItems) {
+            const product = products.find(item => String(item.id) === String(key));
+            if (product) {
+                cartArray.push({ 
+                    ...product, 
+                    id: product.id, // ensure id is present and is the product id
+                    quantity: cartItems[key].quantity, 
+                    cart_item_id: cartItems[key].cart_item_id
+                });
+            }
+        }
+        return cartArray;
+    };
+
+    // Add cart object
+    const cart = {
+        items: getCart(),
+        subtotal: getCartAmount(),
+        tax: Math.round(getCartAmount() * 0.02 * 100) / 100,
+        grand_total: Math.round(getCartAmount() * 1.02 * 100) / 100,
+        itemCount: getCartCount()
     };
 
     useEffect(() => {
@@ -242,6 +272,7 @@ export const AppContextProvider = ({ children }) => {
         setSearchQuery,
         getCartAmount,
         getCartCount,
+        cart // <-- add cart to context value
     };
 
     return (

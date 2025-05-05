@@ -112,3 +112,25 @@ class OrderView(APIView):
         )
 
         return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
+
+
+class UpdateCartItemByProductView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def put(self, request, product_id):
+        cart, _ = Cart.objects.get_or_create(user=request.user)
+        cart_item = get_object_or_404(CartItem, cart=cart, product__id=product_id)
+        quantity = int(request.data.get('quantity', 1))
+        cart_item.quantity = quantity
+        cart_item.save()
+        return Response({'message': 'Quantity updated'}, status=status.HTTP_200_OK)
+
+
+class RemoveFromCartByProductView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def delete(self, request, product_id):
+        cart, _ = Cart.objects.get_or_create(user=request.user)
+        cart_item = get_object_or_404(CartItem, cart=cart, product__id=product_id)
+        cart_item.delete()
+        return Response({'message': 'Item removed from cart'}, status=status.HTTP_204_NO_CONTENT)

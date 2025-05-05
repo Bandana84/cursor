@@ -1,7 +1,7 @@
 from django.db import models
 from django.conf import settings  # Use settings.AUTH_USER_MODEL
 from products.models import Product
-
+from decimal import Decimal
 # === CART ===
 class Cart(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="carts")
@@ -22,6 +22,11 @@ class Cart(models.Model):
     @property
     def tax(self):
         return self.subtotal * 0.02  # 2% tax
+
+
+    @property
+    def tax(self):
+     return self.subtotal * Decimal("0.02")
 
     @property
     def grand_total(self):

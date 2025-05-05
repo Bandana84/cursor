@@ -31,7 +31,7 @@ const ProductCard = ({product}) => {
                       {currency}{product.offerPrice} {" "}<span className="text-gray-500/60 md:text-sm text-xs line-through">{currency}${product.price}</span>
                   </p>
                   <div onClick={(e) => {e.stopPropagation();}} className="text-primary">
-                      {!cartItems[product.id]? (
+                      {!cartItems[product.id]?.quantity ? (
                           <button className="flex items-center justify-center gap-1 bg-indigo-100 border border-indigo-300 md:w-[80px] w-[64px] h-[34px] rounded cursor-pointer" onClick={() => addToCart(product.id)} >
                               <img src="/cart_icon.svg" alt="carticon"/>
                               Add
@@ -41,7 +41,7 @@ const ProductCard = ({product}) => {
                               <button onClick={() =>{removeFromCart(product.id)} } className="cursor-pointer text-md px-2 h-full" >
                                   -
                               </button>
-                              <span className="w-5 text-center">{cartItems[product.id]}</span>
+                              <span className="w-5 text-center">{cartItems[product.id]?.quantity}</span>
                               <button onClick={() => {addToCart(product.id) }}className="cursor-pointer text-md px-2 h-full" >
                                   +
                               </button>

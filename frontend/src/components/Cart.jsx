@@ -1,10 +1,10 @@
 import React from 'react';
-import { useCart } from '../context/CartContext';
+import { useAppContext } from '../context/AppContext';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
 
 const Cart = () => {
-    const { cart, updateCartItem, removeFromCart, currency, user } = useCart();
+    const { cart, updateCartItem, removeFromCart, currency, user } = useAppContext();
     const navigate = useNavigate();
 
     const handleUpdateQuantity = async (productId, newQuantity) => {
@@ -123,4 +123,4 @@ const Cart = () => {
     );
 };
 
-export default Cart; 
+export default Cart;

@@ -8,7 +8,6 @@ import Home from './pages/Home'
 
 import { Toaster } from "react-hot-toast";
 import { AuthProvider } from './context/AuthContext'; 
-import { CartProvider } from './context/CartContext';
 import Footer from './components/footer';
 import Login from './components/Login';
 // import Register from "./components/Register";
@@ -39,42 +38,40 @@ const App =()=>{
   const { showUserLogin,isSeller } = useAppContext()
   return(
     <AuthProvider>
-      <CartProvider>
-        <div className='text-default min-h-screen text-gray-700 bg-white'>
-          {isSellerPath ? null : <Navbar/>}
-          {showUserLogin ? <Login/> :null}
-          <Toaster/>
-          <div className={`${isSellerPath ? "":"px-6md:px-16 lg:px-24 xl:px-32"}`}>
-            <Routes>
-              <Route path='/' element={<Home/>}/>
-              <Route path='/products' element={<AllProducts/>}/>
-              <Route path='/products/:category' element={<ProductCategory/>}/>
-              <Route path='/products/:category/:id' element={<ProductDetails/>}/>
-              <Route path='/cart' element={<Cart/>}/>
-              <Route path='/add-address' element={<AddAddress/>}/>
-              <Route path='/my-orders' element={<MyOrders/>}/>
-              <Route path="/seller" element={isSeller ? <SellerLayout /> : <SellerLogin />}>
-                <Route index element={isSeller?<AddProduct />:null} /> {/* /seller */}
-                <Route path="product-list" element={<ProductList />} /> {/* /seller/product-list */}
-                <Route path="orders" element={<Orders />} /> {/* /seller/orders */}
-              </Route>
-              <Route path="/login" element={<Login />} />
-              <Route path="/verify-email/:username" element={<VerifyEmail />} />
+      <div className='text-default min-h-screen text-gray-700 bg-white'>
+        {isSellerPath ? null : <Navbar/>}
+        {showUserLogin ? <Login/> :null}
+        <Toaster/>
+        <div className={`${isSellerPath ? "":"px-6md:px-16 lg:px-24 xl:px-32"}`}>
+          <Routes>
+            <Route path='/' element={<Home/>}/>
+            <Route path='/products' element={<AllProducts/>}/>
+            <Route path='/products/:category' element={<ProductCategory/>}/>
+            <Route path='/products/:category/:id' element={<ProductDetails/>}/>
+            <Route path='/cart' element={<Cart/>}/>
+            <Route path='/add-address' element={<AddAddress/>}/>
+            <Route path='/my-orders' element={<MyOrders/>}/>
+            <Route path="/seller" element={isSeller ? <SellerLayout /> : <SellerLogin />}>
+              <Route index element={isSeller?<AddProduct />:null} /> {/* /seller */}
+              <Route path="product-list" element={<ProductList />} /> {/* /seller/product-list */}
+              <Route path="orders" element={<Orders />} /> {/* /seller/orders */}
+            </Route>
+            <Route path="/login" element={<Login />} />
+            <Route path="/verify-email/:username" element={<VerifyEmail />} />
+            <Route path="/forgot-password" element={<ForgotPassword />} />
+            <Route path="/reset-password/:uid/:token" element={<ResetPassword />} />
+            <Route path="/resend-otp" element={<ResendOtp />} /> 
+
+            {/* <Route path="/register" element={<Register />} />
               <Route path="/forgot-password" element={<ForgotPassword />} />
               <Route path="/reset-password/:uid/:token" element={<ResetPassword />} />
-              <Route path="/resend-otp" element={<ResendOtp />} /> 
+              <Route path="/verify-email/:username" element={<VerifyEmail />} />
+              <Route path="/resend-otp" element={<ResendOtp />} /> */}
 
-              {/* <Route path="/register" element={<Register />} />
-                <Route path="/forgot-password" element={<ForgotPassword />} />
-                <Route path="/reset-password/:uid/:token" element={<ResetPassword />} />
-                <Route path="/verify-email/:username" element={<VerifyEmail />} />
-                <Route path="/resend-otp" element={<ResendOtp />} /> */}
-
-            </Routes>
-          </div>
-          {!isSellerPath &&<Footer/>}
+          </Routes>
         </div>
-      </CartProvider>
+        {!isSellerPath &&<Footer/>}
+      </div>
     </AuthProvider>
   )
 }

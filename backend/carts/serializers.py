@@ -5,10 +5,10 @@ from products.serializers import ProductSerializer
 class CartItemSerializer(serializers.ModelSerializer):
     product = ProductSerializer(read_only=True)
     subtotal = serializers.SerializerMethodField()
-
+    cart_item_id = serializers.IntegerField(source='id', read_only=True)
     class Meta:
         model = CartItem
-        fields = ['id', 'product', 'quantity', 'subtotal']
+        fields = ['cart_item_id', 'product', 'quantity', 'subtotal']
 
     def get_subtotal(self, obj):
         return obj.get_subtotal()
