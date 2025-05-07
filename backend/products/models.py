@@ -34,3 +34,18 @@ class Product(models.Model):
 class ProductImage(models.Model):
     product = models.ForeignKey(Product, on_delete=models.CASCADE, related_name='images')
     image = models.ImageField(upload_to='product_images/')
+
+class Banner(models.Model):
+    title = models.CharField(max_length=200)
+    subtitle = models.CharField(max_length=500, blank=True)
+    image = models.ImageField(upload_to='banners/')
+    is_active = models.BooleanField(default=True)
+    order = models.IntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['order', '-created_at']
+
+    def __str__(self):
+        return self.title

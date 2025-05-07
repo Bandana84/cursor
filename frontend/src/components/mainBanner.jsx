@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Swiper, SwiperSlide } from 'swiper/react';
 import { Autoplay, Pagination, Navigation } from 'swiper/modules';
@@ -8,11 +8,47 @@ import 'swiper/css/navigation';
 import './MainBanner.css'; // We'll create this CSS file for additional styles
 
 const MainBanner = () => {
-    const banners = [
-        '/banner.webp',
-        '/banner2.jpg',
-        '/banner3.jpg'
-    ];
+    const [banners, setBanners] = useState([]);
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        const fetchBanners = async () => {
+            try {
+                const response = await fetch('http://localhost:8000/api/products/banners/');
+                if (!response.ok) {
+                    throw new Error('Failed to fetch banners');
+                }
+                const data = await response.json();
+                setBanners(data);
+            } catch (error) {
+                console.error('Error fetching banners:', error);
+                // Fallback to default banners if API fails
+                setBanners([
+                    { id: 1, image: '/banner.webp', title: 'Default Banner 1', subtitle: 'Fresh produce directly from local farmers' },
+                    { id: 2, image: '/banner2.jpg', title: 'Default Banner 2', subtitle: 'Your one stop solution for farm-to-market shopping' },
+                    { id: 3, image: '/banner3.jpg', title: 'Default Banner 3', subtitle: 'Quality products at affordable prices' }
+                ]);
+            } finally {
+                setLoading(false);
+            }
+        };
+
+        fetchBanners();
+    }, []);
+
+    const getImageUrl = (imagePath) => {
+        if (!imagePath) return '/placeholder.png';
+        if (imagePath.startsWith('http')) return imagePath;
+        return `http://localhost:8000${imagePath.startsWith('/') ? '' : '/media/'}${imagePath}`;
+    };
+
+    if (loading) {
+        return (
+            <div className="w-full h-[400px] md:h-[600px] lg:h-[700px] flex items-center justify-center bg-gray-100">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary"></div>
+            </div>
+        );
+    }
 
     return (
         <div className="relative overflow-hidden banner-container">
@@ -40,12 +76,12 @@ const MainBanner = () => {
                 }}
                 className="w-full h-[400px] md:h-[600px] lg:h-[700px] swiper-overlay"
             >
-                {banners.map((banner, index) => (
-                    <SwiperSlide key={index}>
+                {banners.map((banner) => (
+                    <SwiperSlide key={banner.id}>
                         <div className="relative w-full h-full">
                             <img 
-                                src={banner} 
-                                alt={`Banner ${index + 1}`} 
+                                src={getImageUrl(banner.image)} 
+                                alt={banner.title} 
                                 className="w-full h-full object-cover transform scale-100 hover:scale-105 transition-transform duration-700" 
                             />
                             <div className="absolute inset-0 bg-gradient-to-t md:bg-gradient-to-r from-black/40 via-black/20 to-transparent"></div>
@@ -116,8 +152,6 @@ const MainBanner = () => {
                         <span className="absolute inset-0 bg-primary/5 group-hover:bg-primary/10 transition-all duration-300"></span>
                     </Link>
                 </div>
-
-               
             </div>
         </div>
     );
