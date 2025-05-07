@@ -19,9 +19,11 @@ const MainBanner = () => {
                     throw new Error('Failed to fetch banners');
                 }
                 const data = await response.json();
-                setBanners(data);
+                // Ensure we're setting an array
+                const bannerData = Array.isArray(data) ? data : (data.results || []);
+                setBanners(bannerData);
             } catch (error) {
-                console.error('Error fetching banners:', error);
+                console.error('Failed to fetch banners:', error);
                 // Fallback to default banners if API fails
                 setBanners([
                     { id: 1, image: '/banner.webp', title: 'Default Banner 1', subtitle: 'Fresh produce directly from local farmers' },

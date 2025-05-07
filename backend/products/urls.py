@@ -6,7 +6,9 @@ router = DefaultRouter()
 router.register(r'banners', BannerViewSet, basename='banner')
 
 urlpatterns = [
-    path('', include(router.urls)),
-    path('products/', ProductListView.as_view(), name='product-list'),
-    path('products/<int:pk>/', ProductDetailView.as_view(), name='product-detail'),
+    # Products endpoints
+    path('', ProductListView.as_view(), name='product-list'),
+    path('<int:pk>/', ProductDetailView.as_view(), name='product-detail'),
+    # Banners endpoint
+    path('banners/', include(router.urls)),
 ]

@@ -36,8 +36,8 @@ const Checkout = () => {
       if (missingFields.length > 0) {
         toast.error(`Please fill in all required fields: ${missingFields.join(', ')}`);
         setIsProcessing(false);
-        return;
-      }
+      return;
+    }
 
       if (paymentMethod === 'online') {
         // Redirect to Khalti payment page
@@ -48,8 +48,8 @@ const Checkout = () => {
             totalAmount: cart.grand_total
           }
         });
-        return;
-      }
+      return;
+    }
 
       const response = await api.post('/carts/order/', {
         ...address,
@@ -131,9 +131,9 @@ const Checkout = () => {
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-4">
-                <div>
+        <div>
                   <label htmlFor="country" className="block text-sm font-medium text-gray-700">Country</label>
-                  <input
+            <input
                     type="text"
                     id="country"
                     name="country"
@@ -142,8 +142,8 @@ const Checkout = () => {
                     className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
                     required
                   />
-                </div>
-                <div>
+        </div>
+        <div>
                   <label htmlFor="phone" className="block text-sm font-medium text-gray-700">Phone Number</label>
                   <input
                     type="tel"
@@ -201,8 +201,8 @@ const Checkout = () => {
               <div className="flex justify-between">
                 <span className="text-gray-600">Subtotal</span>
                 <span className="text-gray-900">{currency}{cart.subtotal}</span>
-              </div>
-              <div className="flex justify-between">
+          </div>
+          <div className="flex justify-between">
                 <span className="text-gray-600">Tax (13%)</span>
                 <span className="text-gray-900">{currency}{cart.tax}</span>
               </div>

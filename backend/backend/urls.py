@@ -27,7 +27,7 @@ admin.site.index_title = "Welcome to Farm Market Admin Portal"
 
 urlpatterns = [
     path('admin/', admin_site.urls),
-    path('api/', include('products.urls')),
-    path('api/', include('carts.urls')),
-    path('api/', include('User.urls')),
+    path('api/products/', include('products.urls')),
+    path('api/carts/', include('carts.urls')),
+    path('api/users/', include('User.urls')),
 ] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
