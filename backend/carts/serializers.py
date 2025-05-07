@@ -45,12 +45,13 @@ class AddressSerializer(serializers.ModelSerializer):
         fields = ['id', 'street', 'city', 'province', 'country', 'phone']
 
 class CreateOrderSerializer(serializers.Serializer):
-    street = serializers.CharField()
-    city = serializers.CharField()
-    province = serializers.CharField()
-    country = serializers.CharField()
+    street = serializers.CharField(required=True)
+    city = serializers.CharField(required=True)
+    province = serializers.CharField(required=True)
+    country = serializers.CharField(required=True)
     phone = serializers.CharField(required=False, allow_blank=True)
-    payment_method = serializers.ChoiceField(choices=[('COD', 'Cash on Delivery'), ('Online', 'Online Payment')])
+    payment_method = serializers.ChoiceField(choices=Order.PAYMENT_METHOD_CHOICES)
+    payment_details = serializers.JSONField(required=False, allow_null=True)
 
 class OrderItemSerializer(serializers.ModelSerializer):
     product = ProductSerializer(read_only=True)

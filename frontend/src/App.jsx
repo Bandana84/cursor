@@ -32,6 +32,7 @@ import Orders from './pages/Farmers/Orders';
 import ProductList from './pages/Farmers/ProductList';
 import AllProducts from './pages/AllProduct';
 import Checkout from './pages/Checkout';
+import Payment from './pages/Payment';
 
 
 const App =()=>{
@@ -53,6 +54,7 @@ const App =()=>{
             <Route path='/add-address' element={<AddAddress/>}/>
             <Route path='/my-orders' element={<MyOrders/>}/>
             <Route path='/checkout' element={<Checkout />} />
+            <Route path='/payment' element={<Payment />} />
             <Route path="/seller" element={isSeller ? <SellerLayout /> : <SellerLogin />}>
               <Route index element={isSeller?<AddProduct />:null} /> {/* /seller */}
               <Route path="product-list" element={<ProductList />} /> {/* /seller/product-list */}

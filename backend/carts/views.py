@@ -109,11 +109,13 @@ class OrderView(APIView):
                 'phone': request.data.get('phone')
             }
             payment_method = request.data.get('payment_method')
+            payment_details = request.data.get('payment_details')
 
             # Log the incoming data
             print("Received data:", request.data)
             print("Address data:", address_data)
             print("Payment method:", payment_method)
+            print("Payment details:", payment_details)
 
             # Validate required fields
             required_fields = ['street', 'city', 'province', 'country', 'phone', 'payment_method']
@@ -155,6 +157,7 @@ class OrderView(APIView):
                     user=request.user,
                     address=address,
                     payment_method=payment_method,
+                    payment_details=payment_details,
                     total_amount=cart.grand_total
                 )
                 print("Order created:", order.id)

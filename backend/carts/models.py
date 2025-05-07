@@ -59,25 +59,32 @@ class Address(models.Model):
 
 # === ORDER ===
 class Order(models.Model):
+    STATUS_CHOICES = [
+        ('Pending', 'Pending'),
+        ('Processing', 'Processing'),
+        ('Delivered', 'Delivered'),
+        ('Cancelled', 'Cancelled'),
+    ]
+    PAYMENT_METHOD_CHOICES = [
+        ('cod', 'Cash on Delivery'),
+        ('online', 'Online Payment'),
+    ]
+
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     address = models.ForeignKey(Address, on_delete=models.SET_NULL, null=True)
-    payment_method = models.CharField(
-        max_length=50,
-        choices=[
-            ('COD', 'Cash on Delivery'),
-            ('Online', 'Online Payment')
-        ]
-    )
+    payment_method = models.CharField(max_length=20, choices=PAYMENT_METHOD_CHOICES)
+    payment_details = models.JSONField(null=True, blank=True)  # Store payment provider details
     total_amount = models.DecimalField(max_digits=10, decimal_places=2)
-    status = models.CharField(max_length=50, default="Pending")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='Pending')
     created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return f"Order #{self.pk} - {self.status}"
+        return f"Order #{self.id} - {self.user.username}"
 
     @property
     def items_count(self):
-        return sum(item.quantity for item in self.items.all())
+        return self.items.count()
 
 # === ORDER ITEM ===
 class OrderItem(models.Model):
