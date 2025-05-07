@@ -15,13 +15,19 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.contrib import admin
-from django.urls import path,include
+from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
+from .admin import admin_site
+
+# Customize admin site
+admin.site.site_header = "Farm Market Admin"
+admin.site.site_title = "Farm Market Admin Portal"
+admin.site.index_title = "Welcome to Farm Market Admin Portal"
+
 urlpatterns = [
-    path('admin/', admin.site.urls),
-    path("api/", include("User.urls")),
-    path('api/products/', include('products.urls')),
-     path('api/carts/', include('carts.urls'))
-     
-]+ static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+    path('admin/', admin_site.urls),
+    path('api/', include('products.urls')),
+    path('api/', include('carts.urls')),
+    path('api/', include('User.urls')),
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

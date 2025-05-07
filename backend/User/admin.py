@@ -1,35 +1,33 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
 from .models import CustomUser, OtpToken
-from .forms import CustomUserCreationForm, CustomUserChangeForm
+from backend.admin import admin_site
 
-@admin.register(CustomUser)
+@admin.register(CustomUser, site=admin_site)
 class CustomUserAdmin(UserAdmin):
-    add_form = CustomUserCreationForm
-    form = CustomUserChangeForm
-    model = CustomUser
+    list_display = ('username', 'email', 'first_name', 'last_name', 'is_staff', 'is_active')
+    list_filter = ('is_staff', 'is_active', 'groups')
+    search_fields = ('username', 'first_name', 'last_name', 'email')
+    ordering = ('username',)
     
-    # Specify which fields to display in the admin list view
-    list_display = ('email', 'username', 'is_staff', 'is_active')
-    list_filter = ('email', 'username', 'is_staff', 'is_active')
-    
-    # Define the fieldsets for add and change forms
     fieldsets = (
-        (None, {'fields': ('email', 'username', 'password')}),
-        ('Permissions', {'fields': ('is_staff', 'is_active', 'groups', 'user_permissions')}),
-        ('Important dates', {'fields': ('last_login', 'date_joined')}),
+        ('Basic Information', {
+            'fields': ('username', 'password', 'email', 'first_name', 'last_name')
+        }),
+        ('Permissions', {
+            'fields': ('is_active', 'is_staff', 'is_superuser', 'groups', 'user_permissions')
+        }),
+        ('Important dates', {
+            'fields': ('last_login', 'date_joined')
+        }),
     )
     
-    # Fields to use when adding a new user
     add_fieldsets = (
         (None, {
             'classes': ('wide',),
-            'fields': ('email', 'username', 'password1', 'password2', 'is_staff', 'is_active')}
-        ),
+            'fields': ('username', 'email', 'password1', 'password2', 'is_staff', 'is_active')
+        }),
     )
-    
-    search_fields = ('email', 'username')
-    ordering = ('email',)
 
 @admin.register(OtpToken)
 class OtpTokenAdmin(admin.ModelAdmin):
