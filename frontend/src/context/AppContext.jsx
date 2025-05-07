@@ -272,7 +272,8 @@ export const AppContextProvider = ({ children }) => {
         setSearchQuery,
         getCartAmount,
         getCartCount,
-        cart // <-- add cart to context value
+        cart,
+        fetchCart
     };
 
     return (

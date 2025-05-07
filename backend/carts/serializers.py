@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Cart, CartItem, Address, Order
+from .models import Cart, CartItem, Address, Order, OrderItem
 from products.serializers import ProductSerializer
 from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated
@@ -42,19 +42,38 @@ class CartSerializer(serializers.ModelSerializer):
 class AddressSerializer(serializers.ModelSerializer):
     class Meta:
         model = Address
-        fields = ['id', 'street', 'city', 'state', 'country']
+        fields = ['id', 'street', 'city', 'province', 'country', 'phone']
 
 class CreateOrderSerializer(serializers.Serializer):
     street = serializers.CharField()
     city = serializers.CharField()
-    state = serializers.CharField()
+    province = serializers.CharField()
     country = serializers.CharField()
+    phone = serializers.CharField(required=False, allow_blank=True)
     payment_method = serializers.ChoiceField(choices=[('COD', 'Cash on Delivery'), ('Online', 'Online Payment')])
 
+class OrderItemSerializer(serializers.ModelSerializer):
+    product = ProductSerializer(read_only=True)
+    subtotal = serializers.SerializerMethodField()
+
+    class Meta:
+        model = OrderItem
+        fields = ['product', 'quantity', 'price', 'subtotal']
+
+    def get_subtotal(self, obj):
+        return obj.get_subtotal()
+
 class OrderSerializer(serializers.ModelSerializer):
+    items = OrderItemSerializer(many=True, read_only=True)
+    address = AddressSerializer(read_only=True)
+    items_count = serializers.SerializerMethodField()
+
     class Meta:
         model = Order
-        fields = ['id', 'user', 'address', 'payment_method', 'total_amount', 'status', 'created_at']
+        fields = ['id', 'user', 'address', 'payment_method', 'total_amount', 'status', 'created_at', 'items', 'items_count']
+
+    def get_items_count(self, obj):
+        return obj.items_count
 
 class MyOrdersView(APIView):
     permission_classes = [IsAuthenticated]

@@ -2,7 +2,7 @@ from rest_framework import status, generics, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.shortcuts import get_object_or_404
-from .models import Cart, CartItem, Address, Order
+from .models import Cart, CartItem, Address, Order, OrderItem
 from products.models import Product
 from .serializers import CartSerializer, AddressSerializer, OrderSerializer
 from rest_framework.permissions import IsAuthenticated
@@ -99,20 +99,97 @@ class OrderView(APIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
-        address_id = request.data.get('address_id')
-        payment_method = request.data.get('payment_method')
-        total_amount = request.data.get('total_amount')
+        try:
+            # Get address details and payment method from request
+            address_data = {
+                'street': request.data.get('street'),
+                'city': request.data.get('city'),
+                'province': request.data.get('province'),
+                'country': request.data.get('country'),
+                'phone': request.data.get('phone')
+            }
+            payment_method = request.data.get('payment_method')
 
-        address = get_object_or_404(Address, id=address_id, user=request.user)
+            # Log the incoming data
+            print("Received data:", request.data)
+            print("Address data:", address_data)
+            print("Payment method:", payment_method)
 
-        order = Order.objects.create(
-            user=request.user,
-            address=address,
-            payment_method=payment_method,
-            total_amount=total_amount
-        )
+            # Validate required fields
+            required_fields = ['street', 'city', 'province', 'country', 'phone', 'payment_method']
+            missing_fields = [field for field in required_fields if not request.data.get(field)]
+            
+            if missing_fields:
+                return Response(
+                    {'error': f'Missing required fields: {", ".join(missing_fields)}'}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
 
-        return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
+            # Get the cart and validate it's not empty
+            cart = get_object_or_404(Cart, user=request.user)
+            if not cart.items.exists():
+                return Response(
+                    {'error': 'Cart is empty'}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            # Create the address
+            address_serializer = AddressSerializer(data=address_data)
+            if not address_serializer.is_valid():
+                print("Address validation errors:", address_serializer.errors)
+                return Response(address_serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+            
+            try:
+                address = address_serializer.save(user=request.user)
+                print("Address created:", address.id)
+            except Exception as e:
+                print("Error creating address:", str(e))
+                return Response(
+                    {'error': f'Failed to create address: {str(e)}'}, 
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+
+            try:
+                # Create the order
+                order = Order.objects.create(
+                    user=request.user,
+                    address=address,
+                    payment_method=payment_method,
+                    total_amount=cart.grand_total
+                )
+                print("Order created:", order.id)
+
+                # Create order items from cart items
+                for cart_item in cart.items.all():
+                    OrderItem.objects.create(
+                        order=order,
+                        product=cart_item.product,
+                        quantity=cart_item.quantity,
+                        price=cart_item.product.offer_price
+                    )
+                print("Order items created")
+
+                # Clear the cart after successful order creation
+                cart.items.all().delete()
+                print("Cart cleared")
+
+                return Response(OrderSerializer(order).data, status=status.HTTP_201_CREATED)
+            except Exception as e:
+                print("Error creating order:", str(e))
+                # If order creation fails, delete the address to maintain consistency
+                if 'address' in locals():
+                    address.delete()
+                return Response(
+                    {'error': f'Failed to create order: {str(e)}'}, 
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+
+        except Exception as e:
+            print("Unexpected error:", str(e))
+            return Response(
+                {'error': f'Unexpected error: {str(e)}'}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 
 class UpdateCartItemByProductView(APIView):
@@ -144,3 +221,31 @@ class MyOrdersView(APIView):
         orders = Order.objects.filter(user=request.user).order_by('-created_at')
         serializer = OrderSerializer(orders, many=True)
         return Response(serializer.data)
+
+
+class CancelOrderView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, order_id):
+        try:
+            order = get_object_or_404(Order, id=order_id, user=request.user)
+            
+            # Only allow cancellation if order is still pending
+            if order.status != "Pending":
+                return Response(
+                    {'error': 'Can only cancel pending orders'}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            
+            order.status = "Cancelled"
+            order.save()
+            
+            return Response(
+                {'message': 'Order cancelled successfully'}, 
+                status=status.HTTP_200_OK
+            )
+        except Exception as e:
+            return Response(
+                {'error': str(e)}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
