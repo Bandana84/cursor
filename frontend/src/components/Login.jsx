@@ -44,8 +44,8 @@ const Login = () => {
     }
   };
 
-  const onSubmit = async (event) => {
-    event.preventDefault();
+  const onSubmit = async (e) => {
+    e.preventDefault();
     setError("");
     setSuccessMessage("");
 
@@ -70,12 +70,29 @@ const Login = () => {
       }
     } else {
       try {
-        const response = await axios.post("http://127.0.0.1:8000/api/login/", {
-          email,
-          password,
+        const response = await fetch('http://127.0.0.1:8000/api/users/login/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: email,
+            password: password,
+          }),
         });
 
-        const { tokens, ...userInfo } = response.data;
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.detail || 'Login failed');
+        }
+
+        const { tokens, ...userInfo } = data;
+        
+        // Store user data and tokens
+        localStorage.setItem('user', JSON.stringify(userInfo));
+        localStorage.setItem('tokens', JSON.stringify(tokens));
+        
         setUser({
           ...userInfo,
           tokens: tokens
@@ -83,7 +100,7 @@ const Login = () => {
         setShowUserLogin(false);
         setIsLoggedIn(true);
       } catch (err) {
-        setError(err.response?.data?.detail || "Login failed. Check your credentials.");
+        setError(err.message || "Login failed. Check your credentials.");
       }
     }
   };

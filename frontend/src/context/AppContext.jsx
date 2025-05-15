@@ -24,7 +24,8 @@ export const AppContextProvider = ({ children }) => {
     const [showUserLogin, setShowUserLogin] = useState(false);
     const [products, setProducts] = useState([]);
     const [cartItems, setCartItems] = useState({});
-    const [searchQuery, setSearchQuery] = useState({});
+    const [searchQuery, setSearchQuery] = useState('');
+    const [filteredProducts, setFilteredProducts] = useState([]);
 
     // Update localStorage when user changes
     useEffect(() => {
@@ -41,6 +42,19 @@ export const AppContextProvider = ({ children }) => {
         }
     }, [user]);
 
+    // Filter products when search query changes
+    useEffect(() => {
+        if (searchQuery.trim() === '') {
+            setFilteredProducts(products);
+        } else {
+            const filtered = products.filter(product => 
+                product.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                product.description.toLowerCase().includes(searchQuery.toLowerCase())
+            );
+            setFilteredProducts(filtered);
+        }
+    }, [searchQuery, products]);
+
     const fetchProducts = async () => {
         try {
             const response = await fetch('http://localhost:8000/api/products/');
@@ -49,6 +63,7 @@ export const AppContextProvider = ({ children }) => {
             }
             const data = await response.json();
             setProducts(data);
+            setFilteredProducts(data);
         } catch (error) {
             console.error('Failed to fetch products:', error);
         }
@@ -126,7 +141,7 @@ export const AppContextProvider = ({ children }) => {
     
             if (response.ok) {
                 const data = await response.json();
-                toast.success("Added to Cart");
+             
                 fetchCart();
                 return true;
             } else {
@@ -169,7 +184,7 @@ export const AppContextProvider = ({ children }) => {
             });
 
             if (response.ok) {
-                toast.success("Quantity updated");
+           
                 fetchCart();
                 return true;
             } else {
@@ -190,12 +205,13 @@ export const AppContextProvider = ({ children }) => {
             const response = await fetch(`http://localhost:8000/api/carts/remove-by-product/${productId}/`, {
                 method: 'DELETE',
                 headers: {
+                  
                     Authorization: `Bearer ${accessToken}`,
                 },
             });
 
             if (response.ok) {
-                toast.success("Removed from Cart");
+              
                 fetchCart();
                 return true;
             } else {
@@ -266,11 +282,14 @@ export const AppContextProvider = ({ children }) => {
         showUserLogin,
         setShowUserLogin,
         products,
+        setProducts,
+        filteredProducts,
         currency,
         addToCart,
         updateCartItem,
         removeFromCart,
         cartItems,
+        setCartItems,
         searchQuery,
         setSearchQuery,
         getCartAmount,

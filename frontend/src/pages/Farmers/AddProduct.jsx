@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react'
 import { categories } from "../../assets/assets";
 
@@ -93,10 +92,10 @@ const onSubmit=async(event)=>{
           >
             <option value="">Select Category</option>
             {categories.map((item,index)=>(
-<option key={index}value={item.path}>{item.path}</option>
+              <option key={index} value={item.path}>
+                {item.text}
+              </option>
             ))}
-               
-              
           </select>
         </div>
 

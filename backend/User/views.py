@@ -220,3 +220,26 @@ class ResendOtpView(APIView):
         send_mail(subject, message, "your@email.com", [email], fail_silently=False)
 
         return Response({"message": "A new OTP has been sent to your email"}, status=status.HTTP_200_OK)
+    
+    
+    # views.py
+from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.admin.sites import site
+from django.shortcuts import render
+from django.contrib.auth import get_user_model
+from products.models import Product
+from carts.models import Order
+from products.models import Banner
+@staff_member_required
+def custom_admin_dashboard(request):
+    app_list = [app for app in site.get_app_list(request) if app['app_label'] != 'token_blacklist']
+
+    context = {
+        "app_list": app_list,
+        "product_count": Product.objects.count(),
+        "active_orders_count": Order.objects.filter(status="active").count(),
+        "user_count": get_user_model().objects.count(),
+        "active_banners_count": Banner.objects.filter(is_active=True).count(),
+        "recent_orders": Order.objects.order_by('-created_at')[:5],
+    }
+    return render(request, "custom_admin/dashboard.html", context)

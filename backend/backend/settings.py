@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     'products',
     'django_filters',
     'carts',
+    'admin_panel',
 ]
 
 MIDDLEWARE = [

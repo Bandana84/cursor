@@ -3,7 +3,7 @@ from .views import *
 from rest_framework_simplejwt.views import TokenRefreshView
 from .views import PasswordResetConfirmView
 from .views import VerifyEmailAPIView, ResendOtpView
-
+from .views import custom_admin_dashboard
 
 urlpatterns = [
     path("register/", UserRegistrationAPIView.as_view(), name="register-user"),
@@ -18,6 +18,7 @@ urlpatterns = [
   # urls.py
    path('verify-email/<str:username>/', VerifyEmailAPIView.as_view(), name='verify-email'),
    path('resend-otp/', ResendOtpView.as_view(), name='resend-otp'),
+   path("admin-dashboard/", custom_admin_dashboard, name="custom_admin_dashboard"),
 ]
 
   

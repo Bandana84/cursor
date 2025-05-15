@@ -26,7 +26,8 @@ admin.site.site_title = "Farm Market Admin Portal"
 admin.site.index_title = "Welcome to Farm Market Admin Portal"
 
 urlpatterns = [
-    path('admin/', admin_site.urls),
+    path("admin/", admin.site.urls),
+    path('custom-admin/', include('admin_panel.urls')),
     path('api/products/', include('products.urls')),
     path('api/carts/', include('carts.urls')),
     path('api/users/', include('User.urls')),

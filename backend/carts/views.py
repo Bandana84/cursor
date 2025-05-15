@@ -6,6 +6,9 @@ from .models import Cart, CartItem, Address, Order, OrderItem
 from products.models import Product
 from .serializers import CartSerializer, AddressSerializer, OrderSerializer
 from rest_framework.permissions import IsAuthenticated
+import json
+import requests
+from django.http import JsonResponse
 
 
 class CartView(APIView):
@@ -250,5 +253,112 @@ class CancelOrderView(APIView):
         except Exception as e:
             return Response(
                 {'error': str(e)}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+class KhaltiPaymentView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        try:
+            cart = get_object_or_404(Cart, user=request.user)
+            if not cart.items.exists():
+                return Response(
+                    {'error': 'Cart is empty'}, 
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            url = "https://khalti.com/api/v2/epayment/initiate/"
+            
+            payload = json.dumps({
+                "return_url": f"{request.scheme}://{request.get_host()}/api/carts/verify-payment/",
+                "website_url": f"{request.scheme}://{request.get_host()}/",
+                "amount": int(cart.grand_total * 100),  # Convert to paisa
+                "purchase_order_id": str(cart.id),
+                "purchase_order_name": "Farms2Basket Order",
+                "customer_info": {
+                    "name": request.user.username,
+                    "email": request.user.email,
+                    "phone": request.data.get('phone', ''),
+                },
+            })
+
+            headers = {
+                "Authorization": "key d1790b84c696446db29feb56628ec289",
+                "Content-Type": "application/json",
+            }
+
+            response = requests.post(url, headers=headers, data=payload)
+            data = response.json()
+
+            if response.status_code == 200 and data.get("payment_url"):
+                return Response({
+                    "payment_url": data["payment_url"],
+                    "pidx": data.get("pidx")
+                })
+            else:
+                return Response(
+                    {'error': f"Payment initiation failed: {data.get('detail', 'Unknown error')}"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+        except Exception as e:
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+
+class VerifyPaymentView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request):
+        try:
+            pidx = request.data.get('pidx')
+            if not pidx:
+                return Response(
+                    {'error': 'Payment ID is required'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+            url = "https://khalti.com/api/v2/epayment/lookup/"
+            payload = json.dumps({"pidx": pidx})
+            headers = {
+                "Authorization": "key d1790b84c696446db29feb56628ec289",
+                "Content-Type": "application/json",
+            }
+
+            response = requests.post(url, headers=headers, data=payload)
+            data = response.json()
+
+            if response.status_code == 200:
+                if data.get("status") == "Completed":
+                    return Response({
+                        "status": "success",
+                        "message": "Payment successful",
+                        "data": data
+                    })
+                elif data.get("status") == "Pending":
+                    return Response({
+                        "status": "pending",
+                        "message": "Payment pending",
+                        "data": data
+                    })
+                else:
+                    return Response({
+                        "status": "failed",
+                        "message": "Payment failed",
+                        "data": data
+                    })
+            else:
+                return Response(
+                    {'error': f"Payment verification failed: {data.get('detail', 'Unknown error')}"},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+
+        except Exception as e:
+            return Response(
+                {'error': str(e)},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )

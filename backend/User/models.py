@@ -5,9 +5,9 @@ from django.conf import settings
 import secrets
 # Create your models here.
 class CustomUser(AbstractUser):
-    email=models.EmailField(unique=True)
-    USERNAME_FIELD="email"
-    REQUIRED_FIELDS=["username"]
+    email = models.EmailField(unique=True)
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ["username"]
     
     def __str__(self) -> str:
         return self.email

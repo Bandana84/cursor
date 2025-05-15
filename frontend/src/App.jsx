@@ -30,7 +30,7 @@ import SellerLayout from './pages/Farmers/SellerLayout';
 import AddProduct from './pages/Farmers/AddProduct';
 import Orders from './pages/Farmers/Orders';
 import ProductList from './pages/Farmers/ProductList';
-import AllProducts from './pages/AllProduct';
+import AllProducts from './pages/AllProducts';
 import Checkout from './pages/Checkout';
 import Payment from './pages/Payment';
 
@@ -66,11 +66,7 @@ const App =()=>{
             <Route path="/reset-password/:uid/:token" element={<ResetPassword />} />
             <Route path="/resend-otp" element={<ResendOtp />} /> 
 
-            {/* <Route path="/register" element={<Register />} />
-              <Route path="/forgot-password" element={<ForgotPassword />} />
-              <Route path="/reset-password/:uid/:token" element={<ResetPassword />} />
-              <Route path="/verify-email/:username" element={<VerifyEmail />} />
-              <Route path="/resend-otp" element={<ResendOtp />} /> */}
+           
 
           </Routes>
         </div>

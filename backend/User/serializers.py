@@ -39,7 +39,12 @@ class UserLoginSerializer(serializers.Serializer):
     password = serializers.CharField(write_only=True)
     
     def validate(self, data):
-        user = authenticate(**data)
-        if user and user.is_active:
-            return user
-        raise serializers.ValidationError("Incorrect Credentials!")    
+        email = data.get('email')
+        password = data.get('password')
+        
+        if email and password:
+            user = authenticate(username=email, password=password)
+            if user and user.is_active:
+                return user
+            raise serializers.ValidationError("Incorrect Credentials!")
+        raise serializers.ValidationError("Both email and password are required!")    

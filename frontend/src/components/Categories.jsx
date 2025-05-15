@@ -7,18 +7,18 @@ const Categories = () => {
   const categories = [
     { text: 'Fruits', image: '/categories/fruits.jpg', bgColor: 'from-green-50 to-green-100', path: 'fruits' },
     { text: 'Vegetables', image: '/categories/vegetables.jpg', bgColor: 'from-amber-50 to-amber-100', path: 'vegetables' },
-    { text: 'Grains & Pulses', image: '/categories/seeds.jpg', bgColor: 'from-cyan-50 to-cyan-100', path: 'seeds' },
-    { text: 'Dairy Products', image: '/categories/cattleandsheep.jpg', bgColor: 'from-rose-50 to-rose-100', path: 'cattle-sheep' },
+    { text: 'Grains & Pulses', image: '/categories/seeds.jpg', bgColor: 'from-cyan-50 to-cyan-100', path: 'grains_pulses' },
+    { text: 'Dairy Products', image: '/categories/cattleandsheep.jpg', bgColor: 'from-rose-50 to-rose-100', path: 'dairy_products' },
     { text: 'Fertilizers', image: '/categories/fertilizers.jpg', bgColor: 'from-orange-50 to-orange-100', path: 'fertilizers' },
     { text: 'Fishery', image: '/categories/fishery.jpg', bgColor: 'from-blue-50 to-blue-100', path: 'fishery' },
     { text: 'Flowers', image: '/categories/flowers.jpg', bgColor: 'from-pink-50 to-pink-100', path: 'flowers' },
-    { text: 'Nursery Plants', image: '/categories/nurseryplants.jpg', bgColor: 'from-emerald-50 to-emerald-100', path: 'nursery-plants' },
-    { text: 'Poultry Products', image: '/categories/poultryproducts.jpg', bgColor: 'from-amber-50 to-amber-100', path: 'poultry-products' },
+    { text: 'Nursery Plants', image: '/categories/nurseryplants.jpg', bgColor: 'from-emerald-50 to-emerald-100', path: 'nursery_plants' },
+    { text: 'Poultry Products', image: '/categories/poultryproducts.jpg', bgColor: 'from-amber-50 to-amber-100', path: 'poultry_products' },
     { text: 'Spices', image: '/categories/spices.jpg', bgColor: 'from-orange-50 to-orange-100', path: 'spices' },
-    { text: 'Nuts & Dry Fruits', image: '/categories/nutsanddry.jpg', bgColor: 'from-indigo-50 to-indigo-100', path: 'any-other' },
-    { text: 'Oils & Ghee', image: '/categories/oils.jpg', bgColor: 'from-purple-50 to-purple-100', path: 'any-other' },
+    { text: 'Nuts & Dry Fruits', image: '/categories/nutsanddry.jpg', bgColor: 'from-indigo-50 to-indigo-100', path: 'nuts_dry_fruits' },
+    { text: 'Oils & Ghee', image: '/categories/oils.jpg', bgColor: 'from-purple-50 to-purple-100', path: 'oils_ghee' },
     { text: 'Manure', image: '/categories/fertilizers.jpg', bgColor: 'from-red-50 to-red-100', path: 'manure' },
-    { text: 'Coffee & Tea', image: '/categories/coffeeandtea.jpg', bgColor: 'from-teal-50 to-teal-100', path: 'coffee-tea' },
+    { text: 'Coffee & Tea', image: '/categories/coffeeandtea.jpg', bgColor: 'from-teal-50 to-teal-100', path: 'coffee_tea' },
   ];
 
   return (

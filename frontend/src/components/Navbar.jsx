@@ -6,42 +6,78 @@ import toast from "react-hot-toast";
 const Navbar = () => {
     const [open, setOpen] = useState(false);
     const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+    const [showSearchResults, setShowSearchResults] = useState(false);
     const dropdownRef = useRef(null);
+    const searchRef = useRef(null);
     const navigate = useNavigate();
 
-    const { user, setUser, setShowUserLogin, setSearchQuery, searchQuery, getCartCount } = useAppContext();
+    const { 
+        user, 
+        setUser, 
+        setShowUserLogin, 
+        setSearchQuery, 
+        searchQuery, 
+        getCartCount,
+        filteredProducts 
+    } = useAppContext();
 
-    // ... (other useEffect hooks remain the same) ...
+    // Close search results when clicking outside
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (searchRef.current && !searchRef.current.contains(event.target)) {
+                setShowSearchResults(false);
+            }
+        };
+
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
 
     const logout = async () => {
-        const accessToken = user?.tokens?.access;
-        
-        if (user && accessToken) {
-            try {
-                const response = await fetch('http://localhost:8000/api/logout/', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${accessToken}`
-                    },
-                    body: JSON.stringify({ refresh: user.tokens.refresh }),
-                });
-                
-                if (response.ok) {
-                    toast.success('Logged out successfully!');
-                } else {
-                    toast.error('Logout failed on server.');
-                }
-            } catch (err) {
-                toast.error('Logout error.');
+        try {
+            // Check if user and tokens exist
+            if (!user?.tokens?.access) {
+                // If no tokens, just clear the user state
+                setUser(null);
+                setShowUserLogin(false);
+                navigate('/');
+                setOpen(false);
+                setIsDropdownOpen(false);
+                return;
             }
+
+            const response = await fetch('http://localhost:8000/api/users/logout/', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${user.tokens.access}`
+                },
+                body: JSON.stringify({
+                    refresh: user.tokens.refresh
+                }),
+            });
+
+            // Even if the server request fails, we should still log the user out locally
+            setUser(null);
+            setShowUserLogin(false);
+            navigate('/');
+            setOpen(false);
+            setIsDropdownOpen(false);
+
+            if (!response.ok) {
+                console.warn('Server logout failed, but user was logged out locally');
+                return;
+            }
+
+        } catch (error) {
+            console.error('Logout error:', error);
+            // Still log out locally even if there's an error
+            setUser(null);
+            setShowUserLogin(false);
+            navigate('/');
+            setOpen(false);
+            setIsDropdownOpen(false);
         }
-        
-        // Clear storage and state
-        setUser(null);
-        navigate('/');
-        setOpen(false);
-        setIsDropdownOpen(false);
     };
 
     return (
@@ -99,9 +135,13 @@ const Navbar = () => {
                         </NavLink>
 
                         {/* Search Bar */}
-                        <div className="hidden lg:flex items-center text-sm space-x-2 border border-gray-200 px-3 py-1.5 rounded-full bg-gray-50 hover:bg-white focus-within:bg-white focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all duration-300">
+                        <div className="hidden lg:flex items-center text-sm space-x-2 border border-gray-200 px-3 py-1.5 rounded-full bg-gray-50 hover:bg-white focus-within:bg-white focus-within:ring-2 focus-within:ring-primary/20 focus-within:border-primary transition-all duration-300 relative" ref={searchRef}>
                             <input
-                                onChange={(e) => setSearchQuery(e.target.value)}
+                                onChange={(e) => {
+                                    setSearchQuery(e.target.value);
+                                    setShowSearchResults(true);
+                                }}
+                                onFocus={() => setShowSearchResults(true)}
                                 value={searchQuery}
                                 className="py-1 w-36 bg-transparent outline-none placeholder-gray-500 text-gray-700 focus:w-44 transition-all duration-300"
                                 type="text"
@@ -111,6 +151,41 @@ const Navbar = () => {
                                 <path d="M10.836 10.615 15 14.695" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
                                 <path clipRule="evenodd" d="M9.141 11.738c2.729-1.136 4.001-4.224 2.841-6.898S7.67.921 4.942 2.057C2.211 3.193.94 6.281 2.1 8.955s4.312 3.92 7.041 2.783" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
                             </svg>
+
+                            {/* Search Results Dropdown */}
+                            {showSearchResults && searchQuery.trim() !== '' && (
+                                <div className="absolute top-full left-0 right-0 mt-2 bg-white rounded-lg shadow-lg border border-gray-100 max-h-96 overflow-y-auto z-50">
+                                    {filteredProducts.length > 0 ? (
+                                        <div className="py-2">
+                                            {filteredProducts.map((product) => (
+                                                <div
+                                                    key={product.id}
+                                                    onClick={() => {
+                                                        navigate(`/products/${product.category.toLowerCase()}/${product.id}`);
+                                                        setShowSearchResults(false);
+                                                        setSearchQuery('');
+                                                    }}
+                                                    className="px-4 py-2 hover:bg-gray-50 cursor-pointer flex items-center space-x-3"
+                                                >
+                                                    <img
+                                                        src={product.images[0]?.image || '/placeholder.png'}
+                                                        alt={product.name}
+                                                        className="w-10 h-10 object-cover rounded"
+                                                    />
+                                                    <div>
+                                                        <h4 className="text-sm font-medium text-gray-900">{product.name}</h4>
+                                                        <p className="text-xs text-gray-500">${product.price}</p>
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="px-4 py-3 text-sm text-gray-500">
+                                            No products found
+                                        </div>
+                                    )}
+                                </div>
+                            )}
                         </div>
 
                         {/* Cart */}
